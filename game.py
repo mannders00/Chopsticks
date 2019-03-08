@@ -9,6 +9,9 @@ p2Right = 1
 
 playing = True
 
+gameCount = 0
+backlog = "" #format = [p1Left, p1Right, p2Left, p2Right, move that is made]
+
 def reset():
     global p1Left, p1Right, p2Left, p2Right
 
@@ -17,8 +20,8 @@ def reset():
     p2Left = 1
     p2Right = 1
 
-def check():
-    global p1Left, p1Right, p2Left, p2Right, playing
+def check(decAndPrint=True):
+    global p1Left, p1Right, p2Left, p2Right, playing, gameCount
 
     if p1Left > 4:
         p1Left = 0
@@ -30,15 +33,17 @@ def check():
         p2Right = 0
 
     if p1Left == 0 and p1Right == 0:
-        print("p2 wins!")
+        if decAndPrint:
+            print("p2 wins!")
+            gameCount = gameCount - 1
         playing = False
-        return False
+        return True
     elif p2Left == 0 and p2Right == 0:
-        print("p1 wins!")
+        if decAndPrint:
+            print("p1 wins!")
+            gameCount = gameCount - 1
         playing = False
         return False
-
-    return True
 
 def attack(fromSide, toSide):
     global p1Left, p1Right, p2Left, p2Right
@@ -125,10 +130,10 @@ def printStatus():
 
 def userMove():
 
-    usrInput = str(raw_input("Would you like to attack or split?: "))
+    usrInput = str(input("Would you like to attack or split?: "))
     if usrInput == "attack":
-        fromHand = str(raw_input("Would you like to attack from your left or right hand?: "))
-        toHand = str(raw_input("Would you like to attack your opponent's left or right hand?: "))
+        fromHand = input("Would you like to attack from your left or right hand?: ")
+        toHand = input("Would you like to attack your opponent's left or right hand?: ")
 
         if fromHand == "left":
 
@@ -158,8 +163,8 @@ def userMove():
             print("Invalid input, try again")
             tick()
     elif usrInput == "split":
-        splitSide = str(raw_input("Would you like to transfer from the left or the right side?: "))
-        splitAmount = input("How many would you like to transfer?: ")
+        splitSide = str(input("Would you like to transfer from the left or the right side?: "))
+        splitAmount = int(input("How many would you like to transfer?: "))
 
         if splitSide == "left":
             if split("p1Left", splitAmount) != True:
@@ -183,110 +188,145 @@ def userMove():
 
     return " "
 
-def randomMove(type):
-    #using random.randint(0, 2) == 0 as a series of coin-flip conditionals (other ways to do this)
-    side = " "
-    printName = " "
-    enemyPrintName = " "
-    if type == "player":
-        side = "p1"
-        printName = "Player 1"
-        enemyPrintName = "Player 2"
-    elif type == "enemy":
-        side = "p2"
-        printName = "Player 2"
-        enemyPrintName = "Player 2"
 
-    if random.randint(0, 2) == 0:
-        #attack
-        if random.randint(0, 2) == 0:
-            #attack with left
-            if random.randint(0, 2) == 0:
-                #attack left with left
-                attack(side + "Left", "left")
-                return printName + " attacked " + enemyPrintName + "'s left hand with their left hand"
-            else:
-                #attack right with left
-                attack(side + "Left", "right")
-                return printName + " attacked " + enemyPrintName + "'s right hand with their left hand"
-        else:
-            #attack with right
-            if random.randint(0, 2) == 0:
-                #attack left with right
-                attack(side + "Right", "left")
-                return printName + " attacked " + enemyPrintName + "'s left hand with their right hand"
-            else:
-                #attack right with right
-                attack(side + "Right", "right")
-                return printName + " attacked " + enemyPrintName + "'s right hand with their right hand"
-    else:
-        #split
-        if random.randint(0, 2) == 0:
-            #split from left
-            amount = random.randint(0, p2Left)
-            split(side + "Left", amount)
-            return printName + " split " + str(amount) + " from their left hand to their right hand"
-        else:
-            #split fron right
-            amount = random.randint(0, p2Right)
-            split(side + "Right", amount)
-            return printName + " split " + str(amount) + " from their right hand to their left hand"
+def presetMove(side, moveID):
+    #Refer to reference for move ID
+    # prefer not to use this many if statements, but since every condition uses the same
+    # functions with different arguments, it's not easy to make an elegant solution in python
 
-    return " "
+    if side == "p1":
 
-def presetMove(side, moveID, quantity):
-    #I define a split where quantity != -1
-    #moveID for attack 0 = left to left, 1 = left to right, 2 = right to left, 3 = right to right
-    #moveID for split 0 = left, 1 = right
-    if quantity == -1:
-        #attack
-        if side == "p1":
-            if moveID == 0:
-                attack("p1Left", "left")
-            elif moveID == 1:
-                attack("p1Left", "right")
-            elif moveID == 2:
-                attack("p1Right", "left")
-            elif moveID == 3:
-                attack("p1Right", "right")
-        elif side == "p2":
-            if moveID == 0:
-                attack("p2Left", "left")
-            elif moveID == 1:
-                attack("p2Left", "right")
-            elif moveID == 2:
-                attack("p2Right", "left")
-            elif moveID == 3:
-                attack("p2Right", "right")
-    else:
-        if side == "p1":
-            if moveID == 0:
-                split("p1Left", quantity)
-            elif moveID == 1:
-                split("p1Right", quantity)
-        elif side == "p2":
-            if moveID == 0:
-                split("p2Left", quantity)
-            elif moveID == 1:
-                split("p2Right", quantity)
+        if moveID == 0:
+            attack("p1Left", "left")
+            return "Player 1 attacked Player 2's left hand with their left hand"
+        elif moveID == 1:
+            attack("p1Left", "right")
+            return "Player 1 attacked Player 2's right hand with their left hand"
+        elif moveID == 2:
+            attack("p1Right", "left")
+            return "Player 1 attacked Player 2's left hand with their right hand"
+        elif moveID == 3:
+            attack("p1Right", "right")
+            return "Player 1 attacked Player 2's right hand with their right hand"
+        elif moveID == 4:
+            split("p1Left", 1)
+            return "Player 1 split 1 from their left hand to their right hand"
+        elif moveID == 5:
+            split("p1Left", 2)
+            return "Player 1 split 2 from their left hand to their right hand"
+        elif moveID == 6:
+            split("p1Left", 3)
+            return "Player 1 split 3 from their left hand to their right hand"
+        elif moveID == 7:
+            split("p1Left", 4)
+            return "Player 1 split 4 from their left hand to their right hand"
+        elif moveID == 8:
+            split("p1Right", 1)
+            return "Player 1 split 1 from their right hand to their left hand"
+        elif moveID == 9:
+            split("p1Right", 2)
+            return "Player 1 split 2 from their right hand to their left hand"
+        elif moveID == 10:
+            split("p1Right", 3)
+            return "Player 1 split 3 from their right hand to their left hand"
+        elif moveID == 11:
+            split("p1Right", 4)
+            return "Player 1 split 4 from their right hand to their left hand"
+
+    elif side == "p2":
+
+        if moveID == 0:
+            attack("p2Left", "left")
+            return "Player 2 attacked Player 1's left hand with their left hand"
+        elif moveID == 1:
+            attack("p2Left", "right")
+            return "Player 2 attacked Player 1's right hand with their left hand"
+        elif moveID == 2:
+            attack("p2Right", "left")
+            return "Player 2 attacked Player 1's left hand with their right hand"
+        elif moveID == 3:
+            attack("p2Right", "right")
+            return "Player 2 attacked Player 1's right hand with their right hand"
+        elif moveID == 4:
+            split("p2Left", 1)
+            return "Player 2 split 1 from their left hand to their right hand"
+        elif moveID == 5:
+            split("p2Left", 2)
+            return "Player 2 split 2 from their left hand to their right hand"
+        elif moveID == 6:
+            split("p2Left", 3)
+            return "Player 2 split 3 from their left hand to their right hand"
+        elif moveID == 7:
+            split("p2Left", 4)
+            return "Player 2 split 4 from their left hand to their right hand"
+        elif moveID == 8:
+            split("p2Right", 1)
+            return "Player 2 split 1 from their right hand to their left hand"
+        elif moveID == 9:
+            split("p2Right", 2)
+            return "Player 2 split 2 from their right hand to their left hand"
+        elif moveID == 10:
+            split("p2Right", 3)
+            return "Player 2 split 3 from their right hand to their left hand"
+        elif moveID == 11:
+            split("p2Right", 4)
+            return "Player 2 split 4 from their right hand to their left hand"
 
 os.system("clear")
+
+while True:
+    gameOption = input("Do you want to play against the computer or run the simulation? (play / sim): ")
+    if gameOption == "play" or gameOption == "sim":
+        if gameOption == "sim":
+            while True:
+                gameCount = input("How many simulations would you like to do?: ")
+                if gameCount.isdigit():
+                    gameCount = int(gameCount)
+                    break
+                else:
+                    print("Invalid input, try again")
+        break
+    else:
+        print("Invalid input, try again")
+
 printStatus()
 
 def tick():
+    global backlog, gameCount, playing
 
-    userMoveLog = userMove()
+    if gameOption == "play":
+        userMoveLog = userMove()    
+        os.system("clear")
+    else:
+        userMoveLog = presetMove("p1", random.randint(0,12))
     check()
-    os.system("clear")
-    print("After P1 move: ")
-    printStatus()
+    if gameOption == "play":
+        print("After P1 move: ")
+        printStatus()
 
     if playing == True:
-        enemyMoveLog = randomMove("enemy")
+        enemyMove = random.randint(0, 12)
+        enemyMoveLog = presetMove("p2", enemyMove)
         check()
-        print("After P2 move: ")
-        printStatus()
-        print(userMoveLog + "\n" + enemyMoveLog)
+        if gameOption == "play":
+            print("After P2 move: ")
+            printStatus()
+            if userMoveLog is not None and enemyMoveLog is not None:
+                print(userMoveLog + "\n" + enemyMoveLog)
+
+        #add current game move state to the log
+        backlog = backlog + str(p1Left) + " " + str(p1Right) + " " + str(p2Left) + " " + str(p2Right) + " " + str(enemyMove) + "\n"
+        #format = [p1Left, p1Right, p2Left, p2Right, move that is made]
+
+        if check(False): #if p2 wins, we add our backlog to the text file
+            with open("output.txt", 'a') as f:
+                f.write(backlog + "\n")
+
+    if playing == False and gameCount > 0:
+        playing = True
+        print("Resetting game...")
+        backlog = ""
+        reset()
 
 while playing:
     tick()

@@ -1,5 +1,5 @@
 # Chopsticks
-Teaching a computer to play the game Chopsticks
+This project is using TensorFlow to teach a computer how to learn how to play the game Chopsticks. This game can be hardcoded to win every time without machine learning, but I thought it would be a good first concept to introduce myself to the concepts.
 
 Rules I will be using (there are different variations used)
 
