@@ -1,5 +1,6 @@
 import os
 import random
+import tensorflow as tf
 
 p1Left = 1
 p1Right = 1
@@ -10,7 +11,11 @@ p2Right = 1
 playing = True
 
 gameCount = 0
-backlog = "" #format = [p1Left, p1Right, p2Left, p2Right, move that is made]
+backlog = "" #  format = [p1Left, p1Right, p2Left, p2Right, move that is made]
+             #  every time a move is made in a WINNING game, each move is recorded
+             #  we assume that if a game is won, it's likely they made good moves
+             #  this is the premise of the program. Each move is stored in backlog for every turn
+
 
 def reset():
     global p1Left, p1Right, p2Left, p2Right
