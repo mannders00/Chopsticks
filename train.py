@@ -20,7 +20,7 @@ y_train = np.array(y_train)
 model = keras.models.Sequential()
 model.add(keras.layers.Flatten())
 
-model.add(keras.layers.Dense(4, activation=tf.nn.relu))
+model.add(keras.layers.Dense(64, activation=tf.nn.relu))
 model.add(keras.layers.Dense(13, activation=tf.nn.softmax))
 
 model.compile(optimizer='adam',
@@ -31,5 +31,7 @@ model.fit(x_train, y_train, epochs=1)
 
 model.save('chopsticks_model')
 
-predictions = model.predict([x_train[0]])
-print(predictions)
+guess = np.array([[1,1,1,1]])
+
+predictions = model.predict(guess)
+print(np.argmax(predictions[0]))

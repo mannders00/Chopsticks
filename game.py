@@ -1,6 +1,8 @@
 import os
 import random
 import tensorflow as tf
+from tensorflow import keras
+import numpy as np
 
 p1Left = 1
 p1Right = 1
@@ -16,6 +18,10 @@ backlog = "" #  format = [p1Left, p1Right, p2Left, p2Right, move that is made]
              #  we assume that if a game is won, it's likely they made good moves
              #  this is the premise of the program. Each move is stored in backlog for every turn
 
+#for starters, let's import our tensorflow model, which we'll use later
+model = keras.models.load_model('chopsticks_model')
+
+#now let's implement our game methods
 
 def reset():
     global p1Left, p1Right, p2Left, p2Right
@@ -310,7 +316,12 @@ def tick():
         printStatus()
 
     if playing == True:
-        enemyMove = random.randint(0, 12)
+        enemyMove = None
+        if gameOption == "play":
+            prediction = model.predict(np.array([[p1Left,p1Right,p2Left,p2Right]]))
+            enemyMove = np.argmax(prediction[0])
+        else:
+            enemyMove = random.randint(0, 12)
         enemyMoveLog = presetMove("p2", enemyMove)
         check()
         if gameOption == "play":
